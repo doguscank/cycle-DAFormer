@@ -10,12 +10,16 @@ import torch.nn as nn
 
 from .registry import MODELS
 
+
+def _build_group_norm(num_features, **kwargs):
+    num_groups = kwargs.pop("num_groups", 32)
+    return nn.GroupNorm(num_groups=num_groups, num_channels=num_features, **kwargs)
+
+
 NORM_LAYERS = {
     "BN": nn.BatchNorm2d,
     "SyncBN": nn.SyncBatchNorm,
-    "GN": lambda num_features, **kw: nn.GroupNorm(
-        num_groups=32, num_channels=num_features
-    ),
+    "GN": _build_group_norm,
 }
 # mmcv-compatible module names for norm layers (used in published checkpoints).
 NORM_ABBR = {
@@ -120,7 +124,10 @@ class ConvModule(nn.Module):
             act_cfg = act_cfg.copy()
             act_type = act_cfg.pop("type")
             act_cls = ACT_LAYERS.get(act_type, nn.ReLU)
-            self.activate = act_cls(inplace=inplace, **act_cfg)
+            if "inplace" in inspect.signature(act_cls).parameters:
+                self.activate = act_cls(inplace=inplace, **act_cfg)
+            else:
+                self.activate = act_cls(**act_cfg)
         else:
             self.activate = None
 
@@ -142,7 +149,7 @@ class ConvModule(nn.Module):
 
 
 class DepthwiseSeparableConvModule(nn.Module):
-    """Depthwise conv + pointwise conv with norm/act on pointwise."""
+    """mmcv-compatible depthwise separable conv block."""
 
     def __init__(
         self,
@@ -156,8 +163,21 @@ class DepthwiseSeparableConvModule(nn.Module):
         conv_cfg=None,
         norm_cfg=None,
         act_cfg=dict(type="ReLU"),
+        dw_norm_cfg="default",
+        dw_act_cfg="default",
+        pw_norm_cfg="default",
+        pw_act_cfg="default",
     ):
         super().__init__()
+        if dw_norm_cfg == "default":
+            dw_norm_cfg = norm_cfg
+        if dw_act_cfg == "default":
+            dw_act_cfg = act_cfg
+        if pw_norm_cfg == "default":
+            pw_norm_cfg = norm_cfg
+        if pw_act_cfg == "default":
+            pw_act_cfg = act_cfg
+
         self.depthwise_conv = ConvModule(
             in_channels,
             in_channels,
@@ -168,8 +188,8 @@ class DepthwiseSeparableConvModule(nn.Module):
             groups=in_channels,
             bias=bias,
             conv_cfg=conv_cfg,
-            norm_cfg=norm_cfg,
-            act_cfg=None,
+            norm_cfg=dw_norm_cfg,
+            act_cfg=dw_act_cfg,
         )
         self.pointwise_conv = ConvModule(
             in_channels,
@@ -177,8 +197,8 @@ class DepthwiseSeparableConvModule(nn.Module):
             1,
             bias=bias,
             conv_cfg=conv_cfg,
-            norm_cfg=norm_cfg,
-            act_cfg=act_cfg,
+            norm_cfg=pw_norm_cfg,
+            act_cfg=pw_act_cfg,
         )
 
     def forward(self, x):

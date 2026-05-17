@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import copy
+import importlib.util
 import json
 import os
 import os.path as osp
 import sys
 import tempfile
-from importlib import import_module
 from typing import Any
 
 import yaml
@@ -62,11 +62,19 @@ def _merge_dict(a: dict, b: dict) -> dict:
 def _load_py_config(filename: str) -> dict:
     filename = osp.abspath(filename)
     cfg_dir = osp.dirname(filename)
-    module_name = osp.splitext(osp.basename(filename))[0]
     if cfg_dir not in sys.path:
         sys.path.insert(0, cfg_dir)
-    spec = import_module(module_name)
-    cfg_dict = {k: v for k, v in spec.__dict__.items() if not k.startswith("__")}
+    module_name = f"_mmcv_config_{abs(hash(filename))}"
+    spec = importlib.util.spec_from_file_location(module_name, filename)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Cannot import config file: {filename}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    try:
+        spec.loader.exec_module(module)
+    finally:
+        sys.modules.pop(module_name, None)
+    cfg_dict = {k: v for k, v in module.__dict__.items() if not k.startswith("__")}
     if "_base_" in cfg_dict:
         base_paths = cfg_dict.pop("_base_")
         if isinstance(base_paths, str):

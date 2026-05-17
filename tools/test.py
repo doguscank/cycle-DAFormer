@@ -165,7 +165,10 @@ def main():
         efficient_test = args.eval_options.get("efficient_test", False)
 
     if not distributed:
-        model = MMDataParallel(model, device_ids=[0])
+        device_ids = [0] if torch.cuda.is_available() else []
+        if device_ids:
+            model = model.cuda()
+        model = MMDataParallel(model, device_ids=device_ids)
         outputs = single_gpu_test(
             model, data_loader, args.show, args.show_dir, efficient_test, args.opacity
         )

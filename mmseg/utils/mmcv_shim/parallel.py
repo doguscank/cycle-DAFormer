@@ -100,8 +100,8 @@ def _normalize_img_metas(img_metas):
     return img_metas
 
 
-def _cuda_collated_batch(data: dict, device) -> dict:
-    """Move collated batch tensors to *device*; preserve mmcv list structure."""
+def _normalize_collated_batch(data: dict, device=None) -> dict:
+    """Normalize collated mmseg batches and optionally move tensors."""
     out = {}
     for key, val in data.items():
         if key == "img_metas":
@@ -110,11 +110,12 @@ def _cuda_collated_batch(data: dict, device) -> dict:
         if isinstance(val, list) and val:
             item = val[0]
             if isinstance(item, torch.Tensor):
-                out[key] = [item.to(device)]
+                out[key] = [item.to(device) if device is not None else item]
             elif isinstance(item, DataContainer) and isinstance(
                 item.data, torch.Tensor
             ):
-                out[key] = [item.data.to(device)]
+                tensor = item.data.to(device) if device is not None else item.data
+                out[key] = [tensor]
             else:
                 out[key] = val
         else:
@@ -150,7 +151,9 @@ class MMDataParallel(DataParallel):
     def forward(self, *inputs, return_loss=True, **kwargs):
         device = self.device_ids[0] if self.device_ids else None
         if device is not None and kwargs:
-            kwargs = _cuda_collated_batch(kwargs, device)
+            kwargs = _normalize_collated_batch(kwargs, device)
+        elif kwargs:
+            kwargs = _normalize_collated_batch(kwargs)
         return self.module(*inputs, return_loss=return_loss, **kwargs)
 
     def train_step(self, data_batch, optimizer, **kwargs):
