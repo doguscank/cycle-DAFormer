@@ -94,10 +94,12 @@ class TextLoggerHook(Hook):
 
 
 class CheckpointHook(Hook):
-    def __init__(self, interval=1, by_epoch=True, max_keep_ckpts=5):
+    def __init__(self, interval=1, by_epoch=True, max_keep_ckpts=5,
+                 meta=None, **kwargs):
         self.interval = interval
         self.by_epoch = by_epoch
         self.max_keep_ckpts = max_keep_ckpts
+        self.meta = meta or {}
 
     def after_train_iter(self, runner):
         if not self.by_epoch and runner.iter % self.interval == 0 and runner.iter > 0:
@@ -108,7 +110,7 @@ class CheckpointHook(Hook):
             return
         filename = osp.join(runner.work_dir, "latest.pth")
         model = runner.model.module if hasattr(runner.model, "module") else runner.model
-        meta = {"iter": runner.iter, **runner.meta}
+        meta = {"iter": runner.iter, **self.meta, **runner.meta}
         torch.save(
             {
                 "state_dict": model.state_dict(),

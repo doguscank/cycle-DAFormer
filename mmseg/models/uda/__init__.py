@@ -4,5 +4,6 @@
 # ---------------------------------------------------------------
 
 from mmseg.models.uda.dacs import DACS
+from mmseg.models.uda.cycle_dacs import CycleDACS
 
-__all__ = ['DACS']
+__all__ = ['DACS', 'CycleDACS']

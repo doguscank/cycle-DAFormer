@@ -15,6 +15,7 @@ from mmseg.utils.mmcv_shim.utils import DictAction
 from mmseg.apis import multi_gpu_test, single_gpu_test
 from mmseg.datasets import build_dataloader, build_dataset
 from mmseg.models import build_segmentor
+from mmseg.models.builder import build_train_model
 from mmseg.utils.legacy_cfg import update_legacy_cfg
 
 
@@ -139,7 +140,15 @@ def main():
 
     # build the model and load checkpoint
     cfg.model.train_cfg = None
-    model = build_segmentor(cfg.model, test_cfg=cfg.get("test_cfg"))
+    use_uda_inference = (
+        cfg.get("uda") is not None and cfg.uda.get("type") == "CycleDACS"
+    )
+    if use_uda_inference:
+        model = build_train_model(cfg, test_cfg=cfg.get("test_cfg"))
+        revise_keys = [(r"^module\.", "")]
+    else:
+        model = build_segmentor(cfg.model, test_cfg=cfg.get("test_cfg"))
+        revise_keys = [(r"^module\.", ""), (r"^model\.", "")]
     fp16_cfg = cfg.get("fp16", None)
     if fp16_cfg is not None:
         wrap_fp16_model(model)
@@ -147,7 +156,7 @@ def main():
         model,
         args.checkpoint,
         map_location="cpu",
-        revise_keys=[(r"^module\.", ""), (r"^model\.", "")],
+        revise_keys=revise_keys,
     )
     if "CLASSES" in checkpoint.get("meta", {}):
         model.CLASSES = checkpoint["meta"]["CLASSES"]
