@@ -87,16 +87,16 @@ This includes synthetic-to-real adaptation on GTA→Cityscapes and
 Synthia→Cityscapes as well as clear-to-adverse-weather adaptation on
 Cityscapes→ACDC and Cityscapes→DarkZurich.
 
-|                     | GTA→CS(val)    | Synthia→CS(val)    | CS→ACDC(test)   | CS→DarkZurich(test)   |
-|---------------------|----------------|--------------------|-----------------|-----------------------|
-| ADVENT [1]          | 45.5           | 41.2               | 32.7            | 29.7                  |
-| BDL [2]             | 48.5           | --                 | 37.7            | 30.8                  |
-| FDA [3]             | 50.5           | --                 | 45.7            | --                    |
-| DACS [4]            | 52.1           | 48.3               | --              | --                    |
-| ProDA [5]           | 57.5           | 55.5               | --              | --                    |
-| MGCDA [6]           | --             | --                 | 48.7            | 42.5                  |
-| DANNet [7]          | --             | --                 | 50.0            | 45.2                  |
-| **DAFormer (Ours)** | **68.3**       | **60.9**           | **55.4***       | **53.8***             |
+|                     | GTA→CS(val) | Synthia→CS(val) | CS→ACDC(test) | CS→DarkZurich(test) |
+| ------------------- | ----------- | --------------- | ------------- | ------------------- |
+| ADVENT [1]          | 45.5        | 41.2            | 32.7          | 29.7                |
+| BDL [2]             | 48.5        | --              | 37.7          | 30.8                |
+| FDA [3]             | 50.5        | --              | 45.7          | --                  |
+| DACS [4]            | 52.1        | 48.3            | --            | --                  |
+| ProDA [5]           | 57.5        | 55.5            | --            | --                  |
+| MGCDA [6]           | --          | --              | 48.7          | 42.5                |
+| DANNet [7]          | --          | --              | 50.0          | 45.2                |
+| **DAFormer (Ours)** | **68.3**    | **60.9**        | **55.4***     | **53.8***           |
 
 &ast; New results of our [extension paper](https://arxiv.org/pdf/2304.13615.pdf)
 
@@ -114,14 +114,14 @@ References:
 
 DAFormer significantly outperforms previous works on domain generalization from GTA to real street scenes.
 
-| DG Method       | Cityscapes     | BDD100K        | Mapillary        | Avg.           |
-|-----------------|----------------|----------------|------------------|----------------|
-| IBN-Net [1,5]   | 37.37          | 34.21          | 36.81            | 36.13          |
-| DRPC [2]        | 42.53          | 38.72          | 38.05            | 39.77          |
-| ISW [3,5]       | 37.20          | 33.36          | 35.57            | 35.38          |
-| SAN-SAW [4]     | 45.33          | 41.18          | 40.77            | 42.43          |
-| SHADE [5]       | 46.66          | 43.66          | 45.50            | 45.27          |
-| DAFormer (Ours) | 52.65&ast;     | 47.89&ast;     | 54.66&ast;       | 51.73&ast;     |
+| DG Method       | Cityscapes | BDD100K    | Mapillary  | Avg.       |
+| --------------- | ---------- | ---------- | ---------- | ---------- |
+| IBN-Net [1,5]   | 37.37      | 34.21      | 36.81      | 36.13      |
+| DRPC [2]        | 42.53      | 38.72      | 38.05      | 39.77      |
+| ISW [3,5]       | 37.20      | 33.36      | 35.57      | 35.38      |
+| SAN-SAW [4]     | 45.33      | 41.18      | 40.77      | 42.43      |
+| SHADE [5]       | 46.66      | 43.66      | 45.50      | 45.27      |
+| DAFormer (Ours) | 52.65&ast; | 47.89&ast; | 54.66&ast; | 51.73&ast; |
 
 &ast; New results of our [extension paper](https://arxiv.org/pdf/2304.13615.pdf)
 
@@ -135,19 +135,27 @@ References:
 
 ## Setup Environment
 
-For this project, we used python 3.8.5. We recommend setting up a new virtual
-environment:
+This fork targets **Python 3.12+** and **PyTorch 2.x** without mmcv. We recommend a new virtual environment:
 
 ```shell
-python -m venv ~/venv/daformer
+python3.12 -m venv ~/venv/daformer
 source ~/venv/daformer/bin/activate
+pip install -U pip
+pip install -r requirements.txt
 ```
 
-In that environment, the requirements can be installed with:
+Run tests (fast unit tests):
 
 ```shell
-pip install -r requirements.txt -f https://download.pytorch.org/whl/torch_stable.html
-pip install mmcv-full==1.3.7  # requires the other packages to be installed first
+python -m pytest tests/ -m "not slow"
+```
+
+Optional environment variables for tests and pretrained weights (see `pretrained_weights/` at workspace root):
+
+```shell
+export DAFORMER_ENCODER_CKPT=/path/to/mit-imagenet-pretrained.pth
+export DAFORMER_GTA2CS_CKPT_DIR=/path/to/extracted/gta2cs/211108_1622_gta2cs_daformer_s0_7f24c
+export DAFORMER_DATA_ROOT=/path/to/data   # parent of gta/ and cityscapes/
 ```
 
 Please, download the MiT ImageNet weights (b3-b5) provided by [SegFormer](https://github.com/NVlabs/SegFormer?tab=readme-ov-file#training)

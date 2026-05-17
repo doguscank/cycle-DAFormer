@@ -4,9 +4,9 @@ import warnings
 
 import torch.nn as nn
 import torch.utils.checkpoint as cp
-from mmcv.cnn import build_conv_layer, build_norm_layer, build_plugin_layer
-from mmcv.runner import BaseModule
-from mmcv.utils.parrots_wrapper import _BatchNorm
+from mmseg.utils.mmcv_shim.cnn import build_conv_layer, build_norm_layer, build_plugin_layer
+from mmseg.utils.mmcv_shim.runner.module import BaseModule
+from mmseg.utils.mmcv_shim.utils import _BatchNorm
 
 from ..builder import BACKBONES
 from ..utils import ResLayer

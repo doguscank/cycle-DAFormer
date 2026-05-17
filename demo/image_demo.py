@@ -6,7 +6,7 @@
 import os
 from argparse import ArgumentParser
 
-import mmcv
+from mmseg.utils import mmcv_compat as mmcv
 from tools.test import update_legacy_cfg
 
 from mmseg.apis import inference_segmentor, init_segmentor

@@ -2,8 +2,8 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch
 import torch.nn as nn
-from mmcv.parallel import MODULE_WRAPPERS, MMDistributedDataParallel
-from mmcv.parallel.scatter_gather import scatter_kwargs
+from mmseg.utils.mmcv_shim.parallel import MODULE_WRAPPERS, MMDistributedDataParallel
+from mmseg.utils.mmcv_shim.parallel import scatter_kwargs
 from torch.cuda._utils import _get_device_index
 
 

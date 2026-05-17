@@ -4,11 +4,11 @@ import warnings
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
 
-import mmcv
+from mmseg.utils import mmcv_compat as mmcv
 import numpy as np
 import torch
 import torch.distributed as dist
-from mmcv.runner import BaseModule, auto_fp16
+from mmseg.utils.mmcv_shim.runner.module import BaseModule, auto_fp16
 
 
 class BaseSegmentor(BaseModule, metaclass=ABCMeta):

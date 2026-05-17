@@ -2,7 +2,7 @@
 
 from collections import OrderedDict
 
-import mmcv
+from mmseg.utils import mmcv_compat as mmcv
 import numpy as np
 import torch
 

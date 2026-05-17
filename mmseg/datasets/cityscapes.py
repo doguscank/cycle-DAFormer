@@ -3,9 +3,9 @@
 import os.path as osp
 import tempfile
 
-import mmcv
+from mmseg.utils import mmcv_compat as mmcv
 import numpy as np
-from mmcv.utils import print_log
+from mmseg.utils.mmcv_shim.utils import print_log
 from PIL import Image
 
 from .builder import DATASETS

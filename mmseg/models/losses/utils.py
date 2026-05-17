@@ -2,7 +2,7 @@
 
 import functools
 
-import mmcv
+from mmseg.utils import mmcv_compat as mmcv
 import numpy as np
 import torch.nn.functional as F
 

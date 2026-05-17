@@ -10,7 +10,7 @@ import argparse
 import json
 import os.path as osp
 
-import mmcv
+from mmseg.utils import mmcv_compat as mmcv
 import numpy as np
 from cityscapesscripts.preparation.json2labelImg import json2labelImg
 from PIL import Image

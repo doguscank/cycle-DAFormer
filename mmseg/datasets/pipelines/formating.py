@@ -2,10 +2,10 @@
 
 from collections.abc import Sequence
 
-import mmcv
+from mmseg.utils import mmcv_compat as mmcv
 import numpy as np
 import torch
-from mmcv.parallel import DataContainer as DC
+from mmseg.utils.mmcv_shim.parallel import DataContainer as DC
 
 from ..builder import PIPELINES
 

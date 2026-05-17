@@ -3,10 +3,11 @@
 # - Override palette, classes, and state dict keys
 
 import matplotlib.pyplot as plt
-import mmcv
+from mmseg.utils import mmcv_compat as mmcv
 import torch
-from mmcv.parallel import collate, scatter
-from mmcv.runner import load_checkpoint
+from mmseg.utils.checkpoint import load_checkpoint
+from mmseg.utils.mmcv_shim.config import Config
+from mmseg.utils.mmcv_shim.parallel import collate, scatter
 
 from mmseg.datasets.pipelines import Compose
 from mmseg.models import build_segmentor
@@ -32,7 +33,7 @@ def init_segmentor(config,
     """
     if isinstance(config, str):
         config = mmcv.Config.fromfile(config)
-    elif not isinstance(config, mmcv.Config):
+    elif not isinstance(config, Config):
         raise TypeError('config must be a filename or Config object, '
                         'but got {}'.format(type(config)))
     config.model.pretrained = None

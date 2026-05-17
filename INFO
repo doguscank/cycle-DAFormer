@@ -1,0 +1,2 @@
+2026-05-17 21:29:18,493 - mmseg - INFO - Iter [0/10]  decode.loss_seg: 2.9649  decode.acc_seg: 3.5675  src.loss_imnet_feat_dist: nan  mix.decode.loss_seg: 0.4935  mix.decode.acc_seg: 36.4502
+2026-05-17 21:30:58,205 - mmseg - INFO - Iter [0/10]  decode.loss_seg: 3.1010  decode.acc_seg: 0.6237  src.loss_imnet_feat_dist: 0.1616  mix.decode.loss_seg: 1.0071  mix.decode.acc_seg: 37.2097

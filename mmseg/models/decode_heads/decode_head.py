@@ -5,7 +5,7 @@ from abc import ABCMeta, abstractmethod
 
 import torch
 import torch.nn as nn
-from mmcv.runner import BaseModule, auto_fp16, force_fp32
+from mmseg.utils.mmcv_shim.runner.module import BaseModule, auto_fp16, force_fp32
 
 from mmseg.core import build_pixel_sampler
 from mmseg.ops import resize

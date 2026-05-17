@@ -1,6 +1,6 @@
 # Obtained from: https://github.com/open-mmlab/mmsegmentation/tree/v0.16.0
 
-import mmcv
+from mmseg.utils import mmcv_compat as mmcv
 
 
 def cityscapes_classes():

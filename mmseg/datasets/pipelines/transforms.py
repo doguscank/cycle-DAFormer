@@ -1,8 +1,8 @@
 # Obtained from: https://github.com/open-mmlab/mmsegmentation/tree/v0.16.0
 
-import mmcv
+from mmseg.utils import mmcv_compat as mmcv
 import numpy as np
-from mmcv.utils import deprecated_api_warning, is_tuple_of
+from mmseg.utils.mmcv_shim.utils import deprecated_api_warning, is_tuple_of
 from numpy import random
 
 from ..builder import PIPELINES

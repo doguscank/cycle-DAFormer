@@ -3,7 +3,7 @@
 
 import torch
 import torch.nn.functional as F
-from mmcv.cnn import ConvModule, Scale
+from mmseg.utils.mmcv_shim.cnn import ConvModule, Scale
 from torch import nn
 
 from mmseg.core import add_prefix

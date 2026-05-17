@@ -2,7 +2,7 @@
 
 import torch
 import torch.nn as nn
-from mmcv.cnn import ConvModule
+from mmseg.utils.mmcv_shim.cnn import ConvModule
 
 from ..builder import HEADS
 from .decode_head import BaseDecodeHead

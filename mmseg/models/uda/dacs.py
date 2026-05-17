@@ -13,11 +13,14 @@ import os
 import random
 from copy import deepcopy
 
-import mmcv
+from mmseg.utils import mmcv_compat as mmcv
 import numpy as np
 import torch
 from matplotlib import pyplot as plt
-from timm.models.layers import DropPath
+try:
+    from timm.layers import DropPath
+except ImportError:
+    from timm.models.layers import DropPath
 from torch.nn.modules.dropout import _DropoutNd
 
 from mmseg.core import add_prefix

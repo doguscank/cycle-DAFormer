@@ -2,7 +2,7 @@
 
 import torch
 import torch.nn as nn
-from mmcv.cnn import ConvModule, DepthwiseSeparableConvModule
+from mmseg.utils.mmcv_shim.cnn import ConvModule, DepthwiseSeparableConvModule
 
 from mmseg.ops import resize
 from ..builder import HEADS

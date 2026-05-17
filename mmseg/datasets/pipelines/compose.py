@@ -2,7 +2,7 @@
 
 import collections
 
-from mmcv.utils import build_from_cfg
+from mmseg.utils.mmcv_shim.utils import build_from_cfg
 
 from ..builder import PIPELINES
 

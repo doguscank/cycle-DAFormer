@@ -7,9 +7,9 @@ import os.path as osp
 from collections import OrderedDict
 from functools import reduce
 
-import mmcv
+from mmseg.utils import mmcv_compat as mmcv
 import numpy as np
-from mmcv.utils import print_log
+from mmseg.utils.mmcv_shim.utils import print_log
 from prettytable import PrettyTable
 from torch.utils.data import Dataset
 

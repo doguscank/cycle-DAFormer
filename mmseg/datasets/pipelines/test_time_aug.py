@@ -2,7 +2,7 @@
 
 import warnings
 
-import mmcv
+from mmseg.utils import mmcv_compat as mmcv
 
 from ..builder import PIPELINES
 from .compose import Compose

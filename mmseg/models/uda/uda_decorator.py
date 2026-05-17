@@ -5,7 +5,7 @@
 
 from copy import deepcopy
 
-from mmcv.parallel import MMDistributedDataParallel
+from mmseg.utils.mmcv_shim.parallel import MMDistributedDataParallel
 
 from mmseg.models import BaseSegmentor, build_segmentor
 

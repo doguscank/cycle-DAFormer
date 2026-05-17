@@ -5,7 +5,7 @@ import math
 
 import torch
 import torch.nn.functional as F
-from mmcv.cnn import ConvModule
+from mmseg.utils.mmcv_shim.cnn import ConvModule
 from torch import nn
 
 from ..builder import HEADS

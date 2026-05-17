@@ -5,11 +5,11 @@
 import random
 import warnings
 
-import mmcv
+from mmseg.utils import mmcv_compat as mmcv
 import numpy as np
 import torch
-from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
-from mmcv.runner import build_optimizer, build_runner
+from mmseg.utils.mmcv_shim.parallel import MMDataParallel, MMDistributedDataParallel
+from mmseg.utils.mmcv_shim.runner.builder import build_optimizer, build_runner
 
 from mmseg.core import DistEvalHook, EvalHook
 from mmseg.core.ddp_wrapper import DistributedDataParallelWrapper

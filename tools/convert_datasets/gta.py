@@ -7,7 +7,7 @@ import argparse
 import json
 import os.path as osp
 
-import mmcv
+from mmseg.utils import mmcv_compat as mmcv
 import numpy as np
 from PIL import Image
 

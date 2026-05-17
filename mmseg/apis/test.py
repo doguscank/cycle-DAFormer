@@ -3,12 +3,12 @@
 import os.path as osp
 import tempfile
 
-import mmcv
+from mmseg.utils import mmcv_compat as mmcv
 import numpy as np
 import torch
-from mmcv.engine import collect_results_cpu, collect_results_gpu
-from mmcv.image import tensor2imgs
-from mmcv.runner import get_dist_info
+from mmseg.utils.mmcv_shim.engine import collect_results_cpu, collect_results_gpu
+from mmseg.utils.mmcv_shim.image import tensor2imgs
+from mmseg.utils.mmcv_shim.runner.dist import get_dist_info
 
 
 def np2tmp(array, temp_file_name=None, tmpdir=None):

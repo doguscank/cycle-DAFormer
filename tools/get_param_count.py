@@ -6,7 +6,8 @@ import logging
 from copy import deepcopy
 
 from experiments import generate_experiment_cfgs
-from mmcv import Config, get_logger
+from mmseg.utils.mmcv_shim.config import Config
+from mmseg.utils.mmcv_shim.utils import get_logger
 from prettytable import PrettyTable
 
 from mmseg.models import build_segmentor

@@ -6,7 +6,7 @@
 import json
 import os.path as osp
 
-import mmcv
+from mmseg.utils import mmcv_compat as mmcv
 import numpy as np
 import torch
 
@@ -14,12 +14,20 @@ from . import CityscapesDataset
 from .builder import DATASETS
 
 
+def _rcs_file_to_seg_map(file):
+    """Map RCS JSON label path to source dataset ``ann['seg_map']``."""
+    file = str(file).replace("\\", "/")
+    if "labels/" in file:
+        return file.split("labels/", 1)[-1]
+    return osp.basename(file)
+
+
 def get_rcs_class_probs(data_root, temperature):
-    with open(osp.join(data_root, 'sample_class_stats.json'), 'r') as of:
+    with open(osp.join(data_root, "sample_class_stats.json"), "r") as of:
         sample_class_stats = json.load(of)
     overall_class_stats = {}
     for s in sample_class_stats:
-        s.pop('file')
+        s.pop("file")
         for c, n in s.items():
             c = int(c)
             if c not in overall_class_stats:
@@ -27,9 +35,7 @@ def get_rcs_class_probs(data_root, temperature):
             else:
                 overall_class_stats[c] += n
     overall_class_stats = {
-        k: v
-        for k, v in sorted(
-            overall_class_stats.items(), key=lambda item: item[1])
+        k: v for k, v in sorted(overall_class_stats.items(), key=lambda item: item[1])
     }
     freq = torch.tensor(list(overall_class_stats.values()))
     freq = freq / torch.sum(freq)
@@ -52,21 +58,22 @@ class UDADataset(object):
         assert target.CLASSES == source.CLASSES
         assert target.PALETTE == source.PALETTE
 
-        rcs_cfg = cfg.get('rare_class_sampling')
+        rcs_cfg = cfg.get("rare_class_sampling")
         self.rcs_enabled = rcs_cfg is not None
         if self.rcs_enabled:
-            self.rcs_class_temp = rcs_cfg['class_temp']
-            self.rcs_min_crop_ratio = rcs_cfg['min_crop_ratio']
-            self.rcs_min_pixels = rcs_cfg['min_pixels']
+            self.rcs_class_temp = rcs_cfg["class_temp"]
+            self.rcs_min_crop_ratio = rcs_cfg["min_crop_ratio"]
+            self.rcs_min_pixels = rcs_cfg["min_pixels"]
 
             self.rcs_classes, self.rcs_classprob = get_rcs_class_probs(
-                cfg['source']['data_root'], self.rcs_class_temp)
-            mmcv.print_log(f'RCS Classes: {self.rcs_classes}', 'mmseg')
-            mmcv.print_log(f'RCS ClassProb: {self.rcs_classprob}', 'mmseg')
+                cfg["source"]["data_root"], self.rcs_class_temp
+            )
+            mmcv.print_log(f"RCS Classes: {self.rcs_classes}", "mmseg")
+            mmcv.print_log(f"RCS ClassProb: {self.rcs_classprob}", "mmseg")
 
             with open(
-                    osp.join(cfg['source']['data_root'],
-                             'samples_with_class.json'), 'r') as of:
+                osp.join(cfg["source"]["data_root"], "samples_with_class.json"), "r"
+            ) as of:
                 samples_with_class_and_n = json.load(of)
             samples_with_class_and_n = {
                 int(k): v
@@ -78,13 +85,13 @@ class UDADataset(object):
                 self.samples_with_class[c] = []
                 for file, pixels in samples_with_class_and_n[c]:
                     if pixels > self.rcs_min_pixels:
-                        self.samples_with_class[c].append(file.split('/')[-1])
+                        self.samples_with_class[c].append(_rcs_file_to_seg_map(file))
                 assert len(self.samples_with_class[c]) > 0
             self.file_to_idx = {}
             for i, dic in enumerate(self.source.img_infos):
-                file = dic['ann']['seg_map']
+                file = dic["ann"]["seg_map"]
                 if isinstance(self.source, CityscapesDataset):
-                    file = file.split('/')[-1]
+                    file = osp.basename(file)
                 self.file_to_idx[file] = i
 
     def get_rare_class_sample(self):
@@ -94,7 +101,7 @@ class UDADataset(object):
         s1 = self.source[i1]
         if self.rcs_min_crop_ratio > 0:
             for j in range(10):
-                n_class = torch.sum(s1['gt_semantic_seg'].data == c)
+                n_class = torch.sum(s1["gt_semantic_seg"].data == c)
                 # mmcv.print_log(f'{j}: {n_class}', 'mmseg')
                 if n_class > self.rcs_min_pixels * self.rcs_min_crop_ratio:
                     break
@@ -106,10 +113,7 @@ class UDADataset(object):
         i2 = np.random.choice(range(len(self.target)))
         s2 = self.target[i2]
 
-        return {
-            **s1, 'target_img_metas': s2['img_metas'],
-            'target_img': s2['img']
-        }
+        return {**s1, "target_img_metas": s2["img_metas"], "target_img": s2["img"]}
 
     def __getitem__(self, idx):
         if self.rcs_enabled:
@@ -117,10 +121,7 @@ class UDADataset(object):
         else:
             s1 = self.source[idx // len(self.target)]
             s2 = self.target[idx % len(self.target)]
-            return {
-                **s1, 'target_img_metas': s2['img_metas'],
-                'target_img': s2['img']
-            }
+            return {**s1, "target_img_metas": s2["img_metas"], "target_img": s2["img"]}
 
     def __len__(self):
         return len(self.source) * len(self.target)

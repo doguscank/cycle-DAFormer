@@ -11,10 +11,11 @@ import os.path as osp
 import sys
 import time
 
-import mmcv
+from mmseg.utils import mmcv_compat as mmcv
 import torch
-from mmcv.runner import init_dist
-from mmcv.utils import Config, DictAction, get_git_hash
+from mmseg.utils.mmcv_shim.runner.dist import init_dist
+from mmseg.utils.mmcv_shim.config import Config
+from mmseg.utils.mmcv_shim.utils import DictAction, get_git_hash
 
 from mmseg import __version__
 from mmseg.apis import set_random_seed, train_segmentor
