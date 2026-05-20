@@ -333,6 +333,9 @@ class EvalHook(Hook):
         rule=None,
         gpu_collect=False,
         efficient_test=False,
+        first_eval_min_miou=None,
+        first_eval_metric="mIoU",
+        first_eval_kill=True,
         **kwargs,
     ):
         self.dataloader = dataloader
@@ -343,6 +346,10 @@ class EvalHook(Hook):
         self.rule = rule
         self.gpu_collect = gpu_collect
         self.efficient_test = efficient_test
+        self.first_eval_min_miou = first_eval_min_miou
+        self.first_eval_metric = first_eval_metric
+        self.first_eval_kill = first_eval_kill
+        self._eval_count = 0
         self.broadcast_bn_buffer = kwargs.get("broadcast_bn_buffer", True)
         self.tmpdir = kwargs.get("tmpdir", None)
         self.best_score = -1
@@ -361,6 +368,23 @@ class EvalHook(Hook):
         key_score = eval_res.get(self.metric, eval_res.get("mIoU", 0))
         if runner.logger:
             runner.logger.info(f"Evaluation {eval_res}")
+        self._eval_count += 1
+        if self._eval_count == 1 and self.first_eval_min_miou is not None:
+            metric_value = eval_res.get(self.first_eval_metric, None)
+            if metric_value is None:
+                runner.logger.warning(
+                    "First-eval guard skipped because metric "
+                    f"{self.first_eval_metric!r} is missing from evaluation "
+                    f"results: {sorted(eval_res.keys())}")
+            elif float(metric_value) < float(self.first_eval_min_miou):
+                message = (
+                    f"First validation {self.first_eval_metric}="
+                    f"{float(metric_value):.4f} is below configured minimum "
+                    f"{float(self.first_eval_min_miou):.4f}.")
+                if self.first_eval_kill:
+                    runner.logger.error(message + " Terminating training.")
+                    raise SystemExit(3)
+                runner.logger.warning(message + " Continuing training.")
         for hook in runner._hooks:
             hook.after_evaluate(
                 runner,
