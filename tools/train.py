@@ -125,6 +125,7 @@ def main(args):
     logger.info('Environment info:\n' + dash_line + env_info + '\n' +
                 dash_line)
     meta['env_info'] = env_info
+    meta['config'] = cfg._cfg_dict_to_plain()
 
     # log some basic info
     logger.info(f'Distributed training: {distributed}')
@@ -139,7 +140,8 @@ def main(args):
         set_random_seed(args.seed, deterministic=args.deterministic)
     cfg.seed = args.seed
     meta['seed'] = args.seed
-    meta['exp_name'] = osp.splitext(osp.basename(args.config))[0]
+    meta['config_name'] = osp.basename(args.config)
+    meta['exp_name'] = osp.splitext(meta['config_name'])[0]
 
     model = build_train_model(
         cfg, train_cfg=cfg.get('train_cfg'), test_cfg=cfg.get('test_cfg'))

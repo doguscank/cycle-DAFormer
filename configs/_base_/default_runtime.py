@@ -5,6 +5,10 @@ log_config = dict(
     interval=50,
     hooks=[
         dict(type='TextLoggerHook', by_epoch=False),
+        dict(
+            type='WandbLoggerHook',
+            by_epoch=False,
+            init_kwargs=dict(project='cycle-daformer')),
         # dict(type='TensorboardLoggerHook')
     ])
 # yapf:enable

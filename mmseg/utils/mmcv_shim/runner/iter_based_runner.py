@@ -15,6 +15,7 @@ from mmseg.utils.mmcv_shim.runner.hooks import (
     LrUpdaterHook,
     OptimizerHook,
     TextLoggerHook,
+    WandbLoggerHook,
 )
 
 
@@ -91,7 +92,11 @@ class IterBasedRunner:
                 cfg = dict(hook_cfg)
                 hook_type = cfg.pop("type", None)
                 if hook_type == "TextLoggerHook":
+                    cfg.setdefault("interval", log_config.get("interval", 50))
                     self.register_hook(TextLoggerHook(**cfg))
+                elif hook_type == "WandbLoggerHook":
+                    cfg.setdefault("interval", log_config.get("interval", 50))
+                    self.register_hook(WandbLoggerHook(**cfg))
 
     def call_hook(self, fn_name):
         for hook in self._hooks:
@@ -111,14 +116,17 @@ class IterBasedRunner:
             if outputs is not None:
                 log_vars = outputs.get("log_vars", outputs)
                 self.log_buffer.update(log_vars)
-            self.call_hook("after_train_iter")
             self.iter += 1
+            self.call_hook("after_train_iter")
+            self.log_buffer.clear()
 
     def run(self, data_loaders, workflow):
         max_iters = self.max_iters
+        self.call_hook("before_run")
         for phase, _ in workflow:
             if phase == "train":
                 self.train(data_loaders[0], max_iters)
+        self.call_hook("after_run")
 
     def load_checkpoint(self, filename, map_location="cpu"):
         ckpt = load_checkpoint_file(filename, map_location=map_location)

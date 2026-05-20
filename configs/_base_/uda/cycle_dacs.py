@@ -28,6 +28,7 @@ uda = dict(
     target_consistency_loss_type='kl',
     target_consistency_threshold=None,
     target_consistency_detach_teacher=True,
+    target_consistency_teacher_no_grad=True,
     enable_feature_adversarial=False,
     lambda_feature_adv=0.0,
     feature_adv_loss_type='bce',

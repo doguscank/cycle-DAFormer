@@ -137,17 +137,24 @@ def get_logger(
 ):
     logger = logging.getLogger(name)
     logger.setLevel(log_level)
-    logger.handlers.clear()
     formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
-    stream_handler = logging.StreamHandler(stream=sys.stdout)
-    stream_handler.setFormatter(formatter)
-    logger.addHandler(stream_handler)
+    if not any(isinstance(h, logging.StreamHandler) for h in logger.handlers):
+        stream_handler = logging.StreamHandler(stream=sys.stdout)
+        stream_handler.setFormatter(formatter)
+        logger.addHandler(stream_handler)
     if log_file:
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
+        abs_log_file = os.path.abspath(log_file)
+        has_file_handler = any(
+            isinstance(h, logging.FileHandler)
+            and os.path.abspath(getattr(h, "baseFilename", "")) == abs_log_file
+            for h in logger.handlers
+        )
+        if not has_file_handler:
+            file_handler = logging.FileHandler(log_file)
+            file_handler.setFormatter(formatter)
+            logger.addHandler(file_handler)
     return logger
 
 

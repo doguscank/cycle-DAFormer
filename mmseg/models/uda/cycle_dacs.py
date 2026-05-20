@@ -89,6 +89,9 @@ class CycleDACS(DACS):
             'target_consistency_loss_type', 'kl')
         self.target_consistency_detach_teacher = bool(
             cfg.get('target_consistency_detach_teacher', True))
+        self.target_consistency_teacher_no_grad = bool(
+            cfg.get('target_consistency_teacher_no_grad',
+                    self.target_consistency_detach_teacher))
         target_threshold = cfg.get('target_consistency_threshold', None)
         self.target_consistency_threshold = (
             self.pseudo_threshold if target_threshold is None
@@ -200,7 +203,11 @@ class CycleDACS(DACS):
             losses.update(src_trans_losses)
 
         if self.lambda_target_consistency > 0:
-            target_logits = self._decode_features(target_feat)
+            if self.target_consistency_teacher_no_grad:
+                with torch.no_grad():
+                    target_logits = self._decode_features(target_feat)
+            else:
+                target_logits = self._decode_features(target_feat)
             target_cycle_logits = self._decode_features(target_cycle)
             losses['loss_target_consistency'] = (
                 self.lambda_target_consistency *
